@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Administración de Usuarios</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1>Administración de Usuarios</h1>
+    
+    <!-- Tabla de usuarios -->
+    <h2>Listado de Usuarios</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Imagen</th>
+                <th>Creado</th>
+                <th>Actualizado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="usuario : ${usuarios}">
+                <td th:text="${usuario.id}"></td>
+                <td th:text="${usuario.username}"></td>
+                <td th:text="${usuario.nombre}"></td>
+                <td th:text="${usuario.apellido}"></td>
+                <td th:text="${usuario.email}"></td>
+                <td th:text="${usuario.role}"></td>
+                <td>
+                    <img th:if="${usuario.profileImageUrl}" th:src="${usuario.profileImageUrl}" alt="Imagen de perfil" width="50">
+                    <span th:unless="${usuario.profileImageUrl}">Sin imagen</span>
+                </td>
+                <td th:text="${#temporals.format(usuario.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${#temporals.format(usuario.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                <td>
+                    <a th:href="@{/admin/usuarios(editId=${usuario.id})}">Editar</a>
+                    <a th:href="@{/admin/usuarios/eliminar/{id}(id=${usuario.id})}" onclick="return confirm('¿Estás seguro de eliminar este usuario?')">Eliminar</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <!-- Formulario para crear nuevo usuario -->
+    <div th:unless="${usuarioEditar}">
+        <h2>Crear Nuevo Usuario</h2>
+        <form th:action="@{/admin/usuarios/guardar}" method="post" enctype="multipart/form-data" th:object="${usuarioNuevo}">
+            <div>
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" name="username" th:field="*{username}" required>
+            </div>
+            <div>
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" th:field="*{password}" required>
+            </div>
+            <div>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" th:field="*{nombre}">
+            </div>
+            <div>
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" name="apellido" th:field="*{apellido}">
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" th:field="*{email}">
+            </div>
+            <div>
+                <label for="role">Rol:</label>
+                <select id="role" name="role" th:field="*{role}">
+                    <option value="ADMIN">Administrador</option>
+                    <option value="USER">Usuario</option>
+                    <option value="ORG">Organización</option>
+                </select>
+            </div>
+            <div>
+                <label for="profileImage">Imagen de perfil:</label>
+                <input type="file" id="profileImage" name="profileImage">
+            </div>
+            <button type="submit">Crear Usuario</button>
+        </form>
+    </div>
+    
+    <!-- Formulario para editar usuario existente -->
+    <div th:if="${usuarioEditar}">
+        <h2>Editar Usuario</h2>
+        <form th:action="@{/admin/usuarios/guardar}" method="post" enctype="multipart/form-data" th:object="${usuarioEditar}">
+            <input type="hidden" th:field="*{id}">
+            <div>
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" name="username" th:field="*{username}" required>
+            </div>
+            <div>
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" placeholder="Dejar en blanco para mantener la actual">
+            </div>
+            <div>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" th:field="*{nombre}">
+            </div>
+            <div>
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" name="apellido" th:field="*{apellido}">
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" th:field="*{email}">
+            </div>
+            <div>
+                <label for="role">Rol:</label>
+                <select id="role" name="role" th:field="*{role}">
+                    <option value="ADMIN">Administrador</option>
+                    <option value="USER">Usuario</option>
+                    <option value="ORG">Organización</option>
+                </select>
+            </div>
+            <div>
+                <label for="profileImage">Imagen de perfil:</label>
+                <input type="file" id="profileImage" name="profileImage">
+                <div th:if="${usuarioEditar.profileImageUrl}">
+                    <img th:src="${usuarioEditar.profileImageUrl}" alt="Imagen actual" width="100">
+                    <div>
+                        <input type="checkbox" id="deleteImage" name="deleteImage" value="true">
+                        <label for="deleteImage">Eliminar imagen actual</label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit">Actualizar Usuario</button>
+            <a th:href="@{/admin/usuarios}">Cancelar</a>
+        </form>
+    </div>
+    
+    <p><a th:href="@{/admin}">Volver al Panel de Administración</a></p>
+</div>
+</body>
+</html>

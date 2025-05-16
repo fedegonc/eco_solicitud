@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Inicio</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1>Eco Solicitud</h1>
+    
+    <h2 th:text="${mensaje}">Mensaje de bienvenida</h2>
+    <p>Esta es una aplicación de ejemplo que utiliza Spring Boot y Thymeleaf.</p>
+    <p>La aplicación está configurada para ejecutarse en el puerto 8080.</p>
+        
+    <div class="actions">
+        <a th:href="@{/auth/login}" class="btn btn-primary" th:unless="${session.usuario}">Iniciar Sesión</a>
+        <a th:href="@{/auth/register}" class="btn btn-secondary" th:unless="${session.usuario}">Registrarse</a>
+        <a th:href="@{/user/dashboard}" class="btn btn-primary" th:if="${session.usuario}">Mi Cuenta</a>
+        <a th:href="@{/admin}" class="btn btn-admin" th:if="${session.isAdmin}">Panel de Administración</a>
+    </div>
+</div>
+</body>
+</html>

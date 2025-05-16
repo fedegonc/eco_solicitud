@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Panel de Administración</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1>Panel de Administración</h1>
+    
+    <h2 th:text="${mensaje}">Mensaje del panel</h2>
+    <p>Bienvenido al panel de administración de Eco Solicitud.</p>
+    
+    <p>
+        <a href="/admin/usuarios" th:href="@{/admin/usuarios}">
+            <button type="button">Ver Listado de Usuarios</button>
+        </a>
+    </p>
+    
+    <p>
+        <a href="/" th:href="@{/}">
+            <button type="button">Volver a la Página Principal</button>
+        </a>
+    </p>
+    
+</div>
+</body>
+</html>

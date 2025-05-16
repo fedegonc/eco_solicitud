@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+    <nav th:fragment="navbar">
+        <div class="navbar">
+            <div class="navbar-brand">
+                <a th:href="@{/}">Eco Solicitud</a>
+            </div>
+            <div class="navbar-menu">
+                <a th:href="@{/}">Inicio</a>
+                <a th:href="@{/auth/login}" th:unless="${session.usuario}">Iniciar Sesión</a>
+                <a th:href="@{/auth/register}" th:unless="${session.usuario}">Registrarse</a>
+                <a th:href="@{/user/dashboard}" th:if="${session.usuario}">Mi Cuenta</a>
+                <a th:href="@{/auth/logout}" th:if="${session.usuario}">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>

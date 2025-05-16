@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Eco Solicitud</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#6B7280',
+                        success: '#10B981',
+                        danger: '#EF4444'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Bloque para CSS específico de cada página -->
+    <th:block layout:fragment="css"></th:block>
+</head>
+
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow-md">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-xl font-bold text-green-600">Eco Solicitud</span>
+            </div>
+            
+            <div class="hidden md:flex space-x-6">
+                <a th:href="@{/}" class="text-gray-700 hover:text-green-600">Inicio</a>
+                
+                <!-- Enlaces para usuarios autenticados -->
+                <div th:if="${session.user != null}" class="relative group">
+                    <button class="text-gray-700 hover:text-green-600 flex items-center">
+                        <span th:text="${session.user.username}">Usuario</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-10">
+                        <a th:href="@{/user/dashboard}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                        <a th:if="${session.user.role == 'ADMIN'}" th:href="@{/admin}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Administración</a>
+                        <a th:href="@{/auth/logout}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cerrar sesión</a>
+                    </div>
+                </div>
+                
+                <!-- Enlaces para usuarios no autenticados -->
+                <div th:if="${session.user == null}" class="flex space-x-4">
+                    <a th:href="@{/auth/login}" class="text-gray-700 hover:text-green-600">Iniciar sesión</a>
+                    <a th:href="@{/auth/register}" class="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700">Registrarse</a>
+                </div>
+            </div>
+            
+            <!-- Menú móvil -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Menú móvil desplegable -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200 px-4 py-2">
+            <a th:href="@{/}" class="block py-2 text-gray-700">Inicio</a>
+            <div th:if="${session.user != null}" class="border-t border-gray-200 mt-2 pt-2">
+                <a th:href="@{/user/dashboard}" class="block py-2 text-gray-700">Dashboard</a>
+                <a th:if="${session.user.role == 'ADMIN'}" th:href="@{/admin}" class="block py-2 text-gray-700">Administración</a>
+                <a th:href="@{/auth/logout}" class="block py-2 text-gray-700">Cerrar sesión</a>
+            </div>
+            <div th:if="${session.user == null}" class="border-t border-gray-200 mt-2 pt-2">
+                <a th:href="@{/auth/login}" class="block py-2 text-gray-700">Iniciar sesión</a>
+                <a th:href="@{/auth/register}" class="block py-2 text-gray-700">Registrarse</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Alertas y mensajes -->
+    <div class="container mx-auto px-4 mt-4">
+        <div th:if="${mensaje}" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded" th:text="${mensaje}"></div>
+        <div th:if="${error}" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded" th:text="${error}"></div>
+    </div>
+
+    <!-- Contenido principal -->
+    <main class="container mx-auto px-4 py-6 flex-grow">
+        <div layout:fragment="content"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">&copy; 2025 Eco Solicitud - Todos los derechos reservados</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript principal y específico -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menú móvil
+            const menuBtn = document.getElementById('mobile-menu-button');
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function() {
+                    document.getElementById('mobile-menu').classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+    <th:block layout:fragment="js"></th:block>
+</body>
+</html>
