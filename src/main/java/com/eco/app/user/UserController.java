@@ -1,5 +1,6 @@
 package com.eco.app.user;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +11,13 @@ import javax.servlet.http.HttpSession;
 @Controller
 public class UserController {
     
+    private final UserService userService;
+    
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+    
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("mensaje", "Bienvenido a la aplicación Eco Solicitud");
@@ -19,13 +27,11 @@ public class UserController {
     @RequestMapping("/user")
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        // Verificar si el usuario ha iniciado sesión
-        User usuario = (User) session.getAttribute("usuario");
-        if (usuario == null) {
+        // Delegar la lógica de negocio al servicio
+        if (!userService.prepareUserDashboard(session, model)) {
             return "redirect:/auth/login";
         }
         
-        model.addAttribute("usuario", usuario);
         return "user/dashboard";
     }
 }

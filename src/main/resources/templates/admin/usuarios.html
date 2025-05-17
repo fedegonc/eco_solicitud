@@ -10,6 +10,44 @@
     
     <!-- Tabla de usuarios -->
     <h2>Listado de Usuarios</h2>
+    
+    <!-- Selector de ordenación -->
+    <div class="order-selector">
+        <label for="orderSelector">Ordenar por:</label>
+        <select id="orderSelector" onchange="window.location.href=this.value">
+            <option value="/admin/usuarios" th:selected="${orderBy == null}">Sin ordenar</option>
+            <option value="/admin/usuarios?orderBy=createdAt&ascending=true" 
+                    th:selected="${orderBy == 'createdAt' && ordenAscendente == true}">Fecha de creación (más antiguos primero)</option>
+            <option value="/admin/usuarios?orderBy=createdAt&ascending=false" 
+                    th:selected="${orderBy == 'createdAt' && ordenAscendente == false}">Fecha de creación (más recientes primero)</option>
+            <option value="/admin/usuarios?orderBy=username&ascending=true" 
+                    th:selected="${orderBy == 'username' && ordenAscendente == true}">Nombre de usuario (A-Z)</option>
+            <option value="/admin/usuarios?orderBy=username&ascending=false" 
+                    th:selected="${orderBy == 'username' && ordenAscendente == false}">Nombre de usuario (Z-A)</option>
+            <option value="/admin/usuarios?orderBy=loginCount&ascending=false" 
+                    th:selected="${orderBy == 'loginCount' && ordenAscendente == false}">Inicios de sesión (mayor a menor)</option>
+        </select>
+        
+        <!-- Mantener los parámetros de paginación al cambiar el orden -->
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                var orderSelector = document.getElementById('orderSelector');
+                var options = orderSelector.options;
+                var currentPage = /*[[${currentPage}]]*/ 0;
+                var currentSize = /*[[${size}]]*/ 10;
+                var viewType = /*[[${viewType}]]*/ 'dto';
+                
+                for (var i = 0; i < options.length; i++) {
+                    var url = options[i].value;
+                    if (url.indexOf('?') === -1) {
+                        options[i].value = url + '?page=' + currentPage + '&size=' + currentSize + '&viewType=' + viewType;
+                    } else {
+                        options[i].value = url + '&page=' + currentPage + '&size=' + currentSize + '&viewType=' + viewType;
+                    }
+                }
+            });
+        </script>
+    </div>
     <table>
         <thead>
             <tr>
@@ -17,9 +55,10 @@
                 <th>Usuario</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
-                <th>Email</th>
                 <th>Rol</th>
                 <th>Imagen</th>
+                <th>Inicios de sesión</th>
+                <th>Último inicio</th>
                 <th>Creado</th>
                 <th>Actualizado</th>
                 <th>Acciones</th>
@@ -31,12 +70,13 @@
                 <td th:text="${usuario.username}"></td>
                 <td th:text="${usuario.nombre}"></td>
                 <td th:text="${usuario.apellido}"></td>
-                <td th:text="${usuario.email}"></td>
-                <td th:text="${usuario.role}"></td>
+                <td th:text="${usuario.roleName}"></td>
                 <td>
                     <img th:if="${usuario.profileImageUrl}" th:src="${usuario.profileImageUrl}" alt="Imagen de perfil" width="50">
                     <span th:unless="${usuario.profileImageUrl}">Sin imagen</span>
                 </td>
+                <td th:text="${usuario.loginCount != null ? usuario.loginCount : '0'}"></td>
+                <td th:text="${usuario.lastLoginAt != null ? #temporals.format(usuario.lastLoginAt, 'dd/MM/yyyy HH:mm') : 'Nunca'}"></td>
                 <td th:text="${#temporals.format(usuario.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
                 <td th:text="${#temporals.format(usuario.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
                 <td>
@@ -46,6 +86,63 @@
             </tr>
         </tbody>
     </table>
+    
+    <!-- Información de paginación -->
+    <div class="pagination-info" th:if="${pageUsuarios.totalElements > 0}">
+        <p>
+            Mostrando <span th:text="${pageUsuarios.numberOfElements}"></span> de 
+            <span th:text="${pageUsuarios.totalElements}"></span> usuarios
+        </p>
+    </div>
+    
+    <!-- Controles de paginación -->
+    <div class="pagination" th:if="${pageUsuarios.totalPages > 1}">
+        <span>Páginas:</span>
+        <ul>
+            <!-- Botón para la primera página -->
+            <li th:class="${currentPage == 0 ? 'disabled' : ''}">
+                <a th:if="${currentPage > 0}" th:href="@{/admin/usuarios(page=0,size=${size},orderBy=${orderBy},ascending=${ordenAscendente})}">Primera</a>
+                <span th:unless="${currentPage > 0}">Primera</span>
+            </li>
+            
+            <!-- Botón para la página anterior -->
+            <li th:class="${currentPage == 0 ? 'disabled' : ''}">
+                <a th:if="${currentPage > 0}" th:href="@{/admin/usuarios(page=${currentPage - 1},size=${size},orderBy=${orderBy},ascending=${ordenAscendente})}">Anterior</a>
+                <span th:unless="${currentPage > 0}">Anterior</span>
+            </li>
+            
+            <!-- Números de página -->
+            <li th:each="i: ${#numbers.sequence(0, pageUsuarios.totalPages - 1)}" 
+                th:class="${currentPage == i ? 'active' : ''}">
+                <a th:if="${currentPage != i}" th:href="@{/admin/usuarios(page=${i},size=${size},orderBy=${orderBy},ascending=${ordenAscendente})}" th:text="${i + 1}"></a>
+                <span th:unless="${currentPage != i}" th:text="${i + 1}"></span>
+            </li>
+            
+            <!-- Botón para la página siguiente -->
+            <li th:class="${currentPage == pageUsuarios.totalPages - 1 ? 'disabled' : ''}">
+                <a th:if="${currentPage < pageUsuarios.totalPages - 1}" th:href="@{/admin/usuarios(page=${currentPage + 1},size=${size},orderBy=${orderBy},ascending=${ordenAscendente})}">Siguiente</a>
+                <span th:unless="${currentPage < pageUsuarios.totalPages - 1}">Siguiente</span>
+            </li>
+            
+            <!-- Botón para la última página -->
+            <li th:class="${currentPage == pageUsuarios.totalPages - 1 ? 'disabled' : ''}">
+                <a th:if="${currentPage < pageUsuarios.totalPages - 1}" th:href="@{/admin/usuarios(page=${pageUsuarios.totalPages - 1},size=${size},orderBy=${orderBy},ascending=${ordenAscendente})}">Última</a>
+                <span th:unless="${currentPage < pageUsuarios.totalPages - 1}">Última</span>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Selector de tamaño de página -->
+    <div class="page-size-selector">
+        <span>Mostrar:</span>
+        <select onchange="window.location.href=this.value">
+            <option th:selected="${size == 5}" th:value="@{/admin/usuarios(page=0,size=5,orderBy=${orderBy},ascending=${ordenAscendente})}">5</option>
+            <option th:selected="${size == 10}" th:value="@{/admin/usuarios(page=0,size=10,orderBy=${orderBy},ascending=${ordenAscendente})}">10</option>
+            <option th:selected="${size == 20}" th:value="@{/admin/usuarios(page=0,size=20,orderBy=${orderBy},ascending=${ordenAscendente})}">20</option>
+            <option th:selected="${size == 50}" th:value="@{/admin/usuarios(page=0,size=50,orderBy=${orderBy},ascending=${ordenAscendente})}">50</option>
+        </select>
+        <span>usuarios por página</span>
+    </div>
     
     <!-- Formulario para crear nuevo usuario -->
     <div th:unless="${usuarioEditar}">

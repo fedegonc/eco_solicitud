@@ -5,6 +5,8 @@ import com.eco.app.exception.ImageProcessingException;
 import com.eco.app.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +25,119 @@ public class AdminService {
      */
     public List<User> getAllUsers() {
         return userService.getAllUsers();
+    }
+    
+    /**
+     * Obtiene todos los usuarios del sistema con paginación
+     * @param pageable Información de paginación
+     * @return Página de usuarios
+     */
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userService.getAllUsers(pageable);
+    }
+    
+    /**
+     * Obtiene todos los usuarios del sistema con paginación usando DTO
+     * @param pageable Información de paginación
+     * @return Página de DTOs de usuario
+     */
+    public Page<UserDTO> getAllUsersDTO(Pageable pageable) {
+        return userService.getAllUsersDTO(pageable);
+    }
+    
+    /**
+     * Obtiene todos los usuarios del sistema con paginación usando Projection
+     * @param pageable Información de paginación
+     * @return Página de proyecciones de usuario
+     */
+    public Page<UserProjection> getAllUsersProjection(Pageable pageable) {
+        return userService.getAllUsersProjection(pageable);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por fecha de creación
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     */
+    public List<User> getUsersOrderedByCreationDate(boolean ascending) {
+        List<User> users = userService.getAllUsers();
+        
+        if (ascending) {
+            users.sort((u1, u2) -> u1.getCreatedAt().compareTo(u2.getCreatedAt()));
+        } else {
+            users.sort((u1, u2) -> u2.getCreatedAt().compareTo(u1.getCreatedAt()));
+        }
+        
+        return users;
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por fecha de creación con paginación
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de usuarios ordenados por fecha de creación
+     */
+    public Page<User> getUsersOrderedByCreationDate(boolean ascending, Pageable pageable) {
+        return userService.getUsersOrderedByCreationDate(ascending, pageable);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por fecha de creación con paginación usando DTO
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de DTOs de usuario ordenados por fecha de creación
+     */
+    public Page<UserDTO> getUsersOrderedByCreationDateDTO(boolean ascending, Pageable pageable) {
+        return userService.getUsersOrderedByCreationDateDTO(ascending, pageable);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por fecha de creación con paginación usando Projection
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de proyecciones de usuario ordenados por fecha de creación
+     */
+    public Page<UserProjection> getUsersOrderedByCreationDateProjection(boolean ascending, Pageable pageable) {
+        return userService.getUsersOrderedByCreationDateProjection(ascending, pageable);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por nombre de usuario con paginación usando DTO
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de DTOs de usuario ordenados por nombre de usuario
+     */
+    public Page<UserDTO> getUsersOrderedByUsernameDTO(boolean ascending, Pageable pageable) {
+        return userService.getUsersOrderedByUsernameDTO(ascending, pageable);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por nombre de usuario con paginación usando Projection
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de proyecciones de usuario ordenados por nombre de usuario
+     */
+    public Page<UserProjection> getUsersOrderedByUsernameProjection(boolean ascending, Pageable pageable) {
+        return userService.getUsersOrderedByUsernameProjection(ascending, pageable);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por cantidad de inicios de sesión con paginación usando DTO
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de DTOs de usuario ordenados por cantidad de inicios de sesión
+     */
+    public Page<UserDTO> getUsersOrderedByLoginCountDTO(boolean ascending, Pageable pageable) {
+        return userService.getUsersOrderedByLoginCountDTO(ascending, pageable);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por cantidad de inicios de sesión con paginación usando Projection
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de proyecciones de usuario ordenados por cantidad de inicios de sesión
+     */
+    public Page<UserProjection> getUsersOrderedByLoginCountProjection(boolean ascending, Pageable pageable) {
+        return userService.getUsersOrderedByLoginCountProjection(ascending, pageable);
     }
 
     /**

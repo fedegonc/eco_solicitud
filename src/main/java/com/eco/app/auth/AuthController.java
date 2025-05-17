@@ -43,8 +43,11 @@ public class AuthController {
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
                 
-                // Guardar el usuario en la sesión
-                session.setAttribute("usuario", user);
+                // Actualizar los campos de seguimiento de inicio de sesión
+                user = userService.updateLoginStats(user);
+                
+                // Guardar el usuario en la sesión (usando "user" como nombre consistente)
+                session.setAttribute("user", user);
                 
                 // Si el usuario es administrador, establecer la bandera isAdmin
                 if (Role.ADMIN.equals(user.getRole())) {

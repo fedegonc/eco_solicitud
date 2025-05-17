@@ -3,9 +3,15 @@ package com.eco.app.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
+import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @Slf4j
@@ -69,10 +75,190 @@ public class UserService {
     }
     
     /**
+     * Actualiza los campos de seguimiento de inicio de sesión de un usuario
+     * @param user El usuario que ha iniciado sesión
+     * @return El usuario actualizado
+     */
+    public User updateLoginStats(User user) {
+        // Actualizar la última hora de inicio de sesión
+        user.setLastLoginAt(LocalDateTime.now());
+        
+        // Incrementar el contador de inicios de sesión
+        if (user.getLoginCount() == null) {
+            user.setLoginCount(1);
+        } else {
+            user.setLoginCount(user.getLoginCount() + 1);
+        }
+        
+        // Guardar los cambios
+        return userRepository.save(user);
+    }
+    
+    /**
      * Obtiene todos los usuarios
      */
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+    
+    /**
+     * Obtiene todos los usuarios con paginación
+     * @param pageable Información de paginación
+     * @return Página de usuarios
+     */
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+    
+    /**
+     * Obtiene todos los usuarios con paginación usando DTO para no exponer datos sensibles
+     * @param pageable Información de paginación
+     * @return Página de DTOs de usuario
+     */
+    public Page<UserDTO> getAllUsersDTO(Pageable pageable) {
+        Page<User> userPage = userRepository.findAll(pageable);
+        return UserMapper.toDTOPage(userPage);
+    }
+    
+    /**
+     * Obtiene todos los usuarios con paginación usando Projection para no exponer datos sensibles
+     * @param pageable Información de paginación
+     * @return Página de proyecciones de usuario
+     */
+    public Page<UserProjection> getAllUsersProjection(Pageable pageable) {
+        return userRepository.findAllProjectedBy(pageable, UserProjection.class);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por fecha de creación con paginación
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de usuarios ordenados por fecha de creación
+     */
+    public Page<User> getUsersOrderedByCreationDate(boolean ascending, Pageable pageable) {
+        if (ascending) {
+            return userRepository.findAllByOrderByCreatedAtAsc(pageable);
+        } else {
+            return userRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por fecha de creación con paginación usando DTO
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de DTOs de usuario ordenados por fecha de creación
+     */
+    public Page<UserDTO> getUsersOrderedByCreationDateDTO(boolean ascending, Pageable pageable) {
+        Page<User> userPage;
+        if (ascending) {
+            userPage = userRepository.findAllByOrderByCreatedAtAsc(pageable);
+        } else {
+            userPage = userRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+        return UserMapper.toDTOPage(userPage);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por fecha de creación con paginación usando Projection
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de proyecciones de usuario ordenados por fecha de creación
+     */
+    public Page<UserProjection> getUsersOrderedByCreationDateProjection(boolean ascending, Pageable pageable) {
+        if (ascending) {
+            return userRepository.findAllByOrderByCreatedAtAscProjected(pageable, UserProjection.class);
+        } else {
+            return userRepository.findAllByOrderByCreatedAtDescProjected(pageable, UserProjection.class);
+        }
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por nombre de usuario con paginación
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de usuarios ordenados por nombre de usuario
+     */
+    public Page<User> getUsersOrderedByUsername(boolean ascending, Pageable pageable) {
+        if (ascending) {
+            return userRepository.findAllByOrderByUsernameAsc(pageable);
+        } else {
+            return userRepository.findAllByOrderByUsernameDesc(pageable);
+        }
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por nombre de usuario con paginación usando DTO
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de DTOs de usuario ordenados por nombre de usuario
+     */
+    public Page<UserDTO> getUsersOrderedByUsernameDTO(boolean ascending, Pageable pageable) {
+        Page<User> userPage;
+        if (ascending) {
+            userPage = userRepository.findAllByOrderByUsernameAsc(pageable);
+        } else {
+            userPage = userRepository.findAllByOrderByUsernameDesc(pageable);
+        }
+        return UserMapper.toDTOPage(userPage);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por nombre de usuario con paginación usando Projection
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de proyecciones de usuario ordenados por nombre de usuario
+     */
+    public Page<UserProjection> getUsersOrderedByUsernameProjection(boolean ascending, Pageable pageable) {
+        if (ascending) {
+            return userRepository.findAllByOrderByUsernameAscProjected(pageable, UserProjection.class);
+        } else {
+            return userRepository.findAllByOrderByUsernameDescProjected(pageable, UserProjection.class);
+        }
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por cantidad de inicios de sesión con paginación
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de usuarios ordenados por cantidad de inicios de sesión
+     */
+    public Page<User> getUsersOrderedByLoginCount(boolean ascending, Pageable pageable) {
+        if (ascending) {
+            return userRepository.findAllByOrderByLoginCountAsc(pageable);
+        } else {
+            return userRepository.findAllByOrderByLoginCountDesc(pageable);
+        }
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por cantidad de inicios de sesión con paginación usando DTO
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de DTOs de usuario ordenados por cantidad de inicios de sesión
+     */
+    public Page<UserDTO> getUsersOrderedByLoginCountDTO(boolean ascending, Pageable pageable) {
+        Page<User> userPage;
+        if (ascending) {
+            userPage = userRepository.findAllByOrderByLoginCountAsc(pageable);
+        } else {
+            userPage = userRepository.findAllByOrderByLoginCountDesc(pageable);
+        }
+        return UserMapper.toDTOPage(userPage);
+    }
+    
+    /**
+     * Obtiene todos los usuarios ordenados por cantidad de inicios de sesión con paginación usando Projection
+     * @param ascending true para ordenar de forma ascendente, false para ordenar de forma descendente
+     * @param pageable Información de paginación
+     * @return Página de proyecciones de usuario ordenados por cantidad de inicios de sesión
+     */
+    public Page<UserProjection> getUsersOrderedByLoginCountProjection(boolean ascending, Pageable pageable) {
+        if (ascending) {
+            return userRepository.findAllByOrderByLoginCountAscProjected(pageable, UserProjection.class);
+        } else {
+            return userRepository.findAllByOrderByLoginCountDescProjected(pageable, UserProjection.class);
+        }
     }
     
     /**
@@ -107,5 +293,30 @@ public class UserService {
      */
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+    
+    /**
+     * Verifica si un usuario está autenticado en la sesión
+     * @param session La sesión HTTP actual
+     * @return El usuario autenticado o null si no hay usuario autenticado
+     */
+    public User getAuthenticatedUser(HttpSession session) {
+        return (User) session.getAttribute("user");
+    }
+    
+    /**
+     * Verifica si un usuario está autenticado y prepara el modelo para la vista del dashboard
+     * @param session La sesión HTTP actual
+     * @param model El modelo para la vista
+     * @return true si el usuario está autenticado, false en caso contrario
+     */
+    public boolean prepareUserDashboard(HttpSession session, Model model) {
+        User user = getAuthenticatedUser(session);
+        if (user == null) {
+            return false;
+        }
+        
+        model.addAttribute("user", user);
+        return true;
     }
 }

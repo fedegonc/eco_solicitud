@@ -40,6 +40,12 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+    
+    @Column(name = "login_count")
+    private Integer loginCount = 0;
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
